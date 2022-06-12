@@ -6,6 +6,8 @@ github.com/opencoff/go-pki v0.2.2 h1:/MZRWt4kAv1i0eTcXYwRJTulvQBogDPwvRwT0NzE1eM
 github.com/opencoff/go-pki v0.2.2/go.mod h1:V8mgOiy4KO8wYYLfbwcHZw6AGqm88/E2NTSlkmuK0BA=
 github.com/opencoff/go-utils v0.4.1 h1:Ke4Q1Tl2GKMI+dwleuPNHH713ngRiNMOFIkymncHqXg=
 github.com/opencoff/go-utils v0.4.1/go.mod h1:c+7QUAiCCHcNH6OGvsZ0fviG7cgse8Y3ucg+xy7sGXM=
+github.com/opencoff/ovpn-tool v0.9.6 h1:ycGcM0MrIUBEf2XBk4tiDR85zbRJZ1LzMe9Gvjo7Bks=
+github.com/opencoff/ovpn-tool v0.9.6/go.mod h1:9KpqAbMj5E72+wzJMrxly8uUu0sD8ah+EVqIfvqiT9M=
 github.com/opencoff/pflag v0.5.0 h1:kK3cSTlGj0fHby/PoFzHkf+Jx3PdiACJwzYDWEWlEKQ=
 github.com/opencoff/pflag v0.5.0/go.mod h1:mTLzGGUGda1Av3d34iAJlh0JIlRxmFZtmc6qoWPspK0=
 go.etcd.io/bbolt v1.3.5 h1:XAzx9gjCb0Rxj7EoqcClPD1d5ZBxZJk0jbuoPHenBt0=
@@ -21,3 +23,6 @@ golang.org/x/sys v0.0.0-20190412213103-97732733099d/go.mod h1:h1NjWce9XRLGQEsW7w
 golang.org/x/sys v0.0.0-20200202164722-d101bd2416d5 h1:LfCXLvNmTYH9kEmVgqbnsWfruoXZIrh4YBgqVHtDvw0=
 golang.org/x/sys v0.0.0-20200202164722-d101bd2416d5/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/text v0.3.0/go.mod h1:NqM8EUOU14njkJ3fqMW+pc6Ldnwhi/IjpwHt7yyuwOQ=
+gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
+gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=
+gopkg.in/yaml.v3 v3.0.1/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=

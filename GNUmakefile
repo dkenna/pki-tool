@@ -3,7 +3,7 @@ uname = $(shell uname)
 bindir = ./bin/$(shell ./build --print-arch)
 tooldir = $(HOME)/bin/$(uname)
 
-bin = $(bindir)/ovpn-tool
+bin = $(bindir)/pki-tool
 
 .PHONY: all install $(tooldir)
 

@@ -14,7 +14,7 @@ import (
 	"strings"
 
 	"github.com/opencoff/go-pki"
-	"github.com/opencoff/ovpn-tool/internal/utils"
+        "github.com/dkenna/pki-tool/internal/utils"
 	flag "github.com/opencoff/pflag"
 )
 

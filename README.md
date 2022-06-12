@@ -46,11 +46,11 @@ such as openssl. It is a replacement for and an enhancement to easy-rsa
 * Ability to export DB contents as a JSON file; ability to import
   JSON from a previous export.
 
-## Building ovpn-tool
+## Building pki-tool
 You will need a fairly recent golang toolchain (>1.10):
 
-    $ git clone https://github.com/opencoff/ovpn-tool
-    $ cd ovpn-tool
+    $ git clone https://github.com/opencoff/pki-tool
+    $ cd pki-tool
     $ ./build -s
 
 The build script puts the binary in a platform specific directory:
@@ -69,10 +69,10 @@ to build a statically linked binary for linux-amd64 architecture:
 
     $ ./build -s --arch linux-amd64
 
-## Invoking ovpn-tool
-The common pattern for invoking ovpn-tool is:
+## Invoking pki-tool
+The common pattern for invoking pki-tool is:
 
-    ovpn-tool DB CMD [options] [arguments]
+    pki-tool DB CMD [options] [arguments]
 
 Where:
 * *DB* is the name of the certificate store (database). This is a
@@ -85,26 +85,26 @@ The tool writes the certificates, keys into an encrypted boltdb instance.
 
 The tool comes with builtin help:
 
-    $ ./bin/openbsd-amd64/ovpn-tool --help
+    $ ./bin/openbsd-amd64/pki-tool --help
 
 Every subcommand comes with its own help; but, requires you to at least
 supply a database name as the first argument. e.g.,
 
-    $ ./bin/openbsd-amd64/ovpn-tool foo.db server --help
+    $ ./bin/openbsd-amd64/pki-tool foo.db server --help
 
 ## Common Workflows
-In what follows, we will assume that you have built ovpn-tool and
+In what follows, we will assume that you have built pki-tool and
 installed somewhere in your `$PATH`.
 
 ### Initialize a new CA
 Before any certificates are generated, one must first create a CA and
 initialize the certificate DB:
 
-    $ ovpn-tool -v foo.db init my-CA
+    $ pki-tool -v foo.db init my-CA
 
 You can see the generated CA certificate via two ways:
 
-1. Using `-v` for the ovpn-tool's global options
+1. Using `-v` for the pki-tool's global options
 2. Using the `list` command with the `--ca` option.
 
 In general, using the `-v` global option when generating the CA, server
@@ -119,19 +119,19 @@ the `-V` (`--validity`) option to "init".
 One can also use a user defined environment variable to provide the
 database master password:
 
-    $ abcdef=myDBPassword45879 ovpn-tool -v foo.db init -E abcdef my-CA
+    $ abcdef=myDBPassword45879 pki-tool -v foo.db init -E abcdef my-CA
 
 The example invocation above uses the DB password from the
 environment variable `abcdef` to find the passphrase
 `myDBPassword45879`.
 
 ### Initialize a new CA by Importing from a JSON file
-If you are using any version of ovpn-tool **prior** to v0.9.x, you
+If you are using any version of pki-tool **prior** to v0.9.x, you
 must first export the DB into a JSON file *using the v0.8.x version
 of the tool*. Assuming the DB dump is in *db.json*, then you can
 initialize a new CA instance like so:
 
-    $ ovpn-tool -v foo.db init --from-json db.json
+    $ pki-tool -v foo.db init --from-json db.json
 
 You will be prompted for the DB passphrase; this passphrase is for
 the **new** database (and NOT the old database).
@@ -141,12 +141,12 @@ Often, it's useful to have an intermediate CA for issuing server or
 client certificates. These intermediate CAs can be arbitrarily
 chained.
 
-    $ ovpn-tool -v foo.db inter client-ca
+    $ pki-tool -v foo.db inter client-ca
 
 Once created, this intermediate CA can be used to issue new leaf
 certificates:
 
-    $ ovpn-tool -v foo.db user -s client-ca user@example.com
+    $ pki-tool -v foo.db user -s client-ca user@example.com
 
 ### Create an OpenVPN server certificate & key pair
 An OpenVPN server needs a few things:
@@ -158,7 +158,7 @@ An OpenVPN server needs a few things:
 
 Creating a new server certificate/key pair:
 
-    $ ovpn-tool -v foo.db server -i IP.ADDR.ES server.domain.name
+    $ pki-tool -v foo.db server -i IP.ADDR.ES server.domain.name
 
 Of course, you should use the appropriate values for `IP.ADDR.ES`
 and `server.domain.name` for your setup.
@@ -181,7 +181,7 @@ An OpenVPN client certificate is quite simple - it just needs a
 common name. For convenience, you may use the email address as the
 common Name.
 
-    $ ovpn-tool -v foo.db client user@domain.name
+    $ pki-tool -v foo.db client user@domain.name
 
 You can ask the client private key to be encrypted with a user
 supplied passphrase by using the `-p` or `--password` option to the
@@ -193,7 +193,7 @@ takes the value in units of years.
 Once in a while you will want to delete users and prevent them from
 connecting to the OpenVPN server. E.g.,
 
-    $ ovpn-tool -v foo.db delete user@domain.name user2@domain
+    $ pki-tool -v foo.db delete user@domain.name user2@domain
 
 This only deletes the users from the certificate DB. You still need
 to generate a new CRL (Certificate Revocation List) and push it to
@@ -204,31 +204,31 @@ Once a user is deleted from the system, you will need to generate a
 new CRL and push it to the server. The command to generate a new
 CRL:
 
-    $ ovpn-tool -v foo.db crl -o crl.pem
+    $ pki-tool -v foo.db crl -o crl.pem
 
 This write the PEM encoded CRL to `crl.pem`. You must copy this file
 to the OpenVPN server and reload (or restart) it.
 
 You can also just view a full list of revoked users:
 
-    $ ovpn-tool foo.db crl --list
+    $ pki-tool foo.db crl --list
 
 ### See list of certificates managed by this CA
 To see a list of certificates in the database:
 
-    $ ovpn-tool foo.db list
+    $ pki-tool foo.db list
 
 ## Revoking CAs or Leaf Certificates
-ovpn-tool enables you to revoke intermediate CAs or leaf
+pki-tool enables you to revoke intermediate CAs or leaf
 certificates. To revoke a user/server cerfificate:
 
-    $ ovpn-tool foo.db del NAME
+    $ pki-tool foo.db del NAME
 
 where `NAME` is the common-name of the certificate you want to
 revoke. **Note** you should generate a new CRL once you revoke any
 certificate:
 
-    $ ovpn-tool foo.db crl -v 7 -o crl.pem
+    $ pki-tool foo.db crl -v 7 -o crl.pem
 
 This generates a CRL with a 7 day validity (you should regenerate
 the CRLs regularly).
@@ -238,12 +238,12 @@ While the tool manages certificates, what we are really after are
 OpenVPN server & client configurations for the server & client
 respectively. To export a server configuration:
 
-    $ ovpn-tool foo.db export server.domain.name
+    $ pki-tool foo.db export server.domain.name
 
 This prints the server configuration to stdout. To save this to a
 file:
 
-    $ ovpn-tool foo.db export server.domain.name -o server.conf
+    $ pki-tool foo.db export server.domain.name -o server.conf
 
 Note the configuration uses certain private IP address blocks and
 such. Please edit the configuration file to suit your environment.
@@ -253,14 +253,14 @@ particular to your OS for dropping privilege of the OpenVPN daemon.
 e.g., on Alpine Linux, the preferred user and group for the daemon
 is "openvpn". On OpenBSD it is "\_openvpn"; on macOS it is "nobody".
 
-The server configuration uses a template baked into ovpn-tool. You
+The server configuration uses a template baked into pki-tool. You
 have the option of providing your own template. The easiest way is
 to export the template and edit it. You can then feed the modified
 template back to the export command:
 
-    $ ovpn-tool foo.db export --print-server-template > s.template
+    $ pki-tool foo.db export --print-server-template > s.template
     $ vi s.template
-    $ ovpn-tool foo.db export -t s.template -o s.conf server.domain.name
+    $ pki-tool foo.db export -t s.template -o s.conf server.domain.name
 
 ### Exporting a Client Configuration
 Client configuration is typically associated with one OpenVPN
@@ -268,24 +268,24 @@ server. However, this is optional and you can take an unassociated
 configuration and make manual changes as needed. A typical
 invocation is:
 
-    $ ovpn-tool foo.db export -s server.domain.name -o client.conf user@domain.name
+    $ pki-tool foo.db export -s server.domain.name -o client.conf user@domain.name
 
 You can export the default client configuration template like so:
 
-    $ ovpn-tool foo.db export --print-client-template > c.template
+    $ pki-tool foo.db export --print-client-template > c.template
 
 ### Replacing the user passphrase on a DB
 If you desire to change the DB passphrase, you can do so with the
 `passwd` command:
 
-    $ ovpn-tool foo.db passwd
+    $ pki-tool foo.db passwd
 
 This merely changes the way the encrypted DB key is stored on disk.
 
 This command also supports getting the old and new passphrases via
 user defined environment variables. e.g.,:
 
-    $ oldpw=myDBPassword45879 newpw=newDBPwd112233 ovpn-tool foo.db \
+    $ oldpw=myDBPassword45879 newpw=newDBPwd112233 pki-tool foo.db \
         passwd -E oldpw -N newpw
 
 This mode of getting the password from the environment is highly
@@ -298,7 +298,7 @@ custom configuration templates:
 
 * `.CommonName` - Certificate common name
 * `.Date` - Today's date and time (UTC)
-* `.Tool` - ovpn-tool build information (version, etc.)
+* `.Tool` - pki-tool build information (version, etc.)
 * `.Cert` - PEM encoded certificate
 * `.Key`  - PEM encoded private key
 * `.Ca`   - PEM encoded CA certificate
@@ -373,7 +373,7 @@ The code is organized as a library & command line frontend for that library.
 * The bulk of the code for PKI management is in
   [go-pki](https://github.com/opencoff/go-pki).
 
-* The ovpn-tool command line code is in the `src/` directory.
+* The pki-tool command line code is in the `src/` directory.
   Each command is in its own file.
 
 * `internal/utils`: Misc utilities for asking interactive password

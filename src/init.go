@@ -12,12 +12,15 @@ import (
 	"crypto/x509/pkix"
 	"fmt"
 	"io/ioutil"
+        "log"
 	"os"
 	"time"
 
 	"github.com/opencoff/go-pki"
-	"github.com/opencoff/ovpn-tool/internal/utils"
+	"github.com/dkenna/pki-tool/internal/utils"
 	flag "github.com/opencoff/pflag"
+  
+  "gopkg.in/yaml.v3"
 )
 
 // Open an existing CA or fail
@@ -52,15 +55,21 @@ func InitCmd(dbfile string, args []string) {
 		initUsage(fs)
 	}
 
-	var country, org, ou string
+        type YmlConfig struct {
+                CommonName string `yaml:"cn"`
+                Country string `yaml:"country"`
+                Organization string `yaml:"organization"`
+                OrganizationUnit string `yaml:"organization-unit"`
+                Validity uint `yaml:"validity"`
+        }
+
+        var ymlPath string
+	var cn, country, org, ou string
 	var yrs uint
 	var from string
 	var envpw string
 
-	fs.StringVarP(&country, "country", "c", "US", "Use `C` as the country name")
-	fs.StringVarP(&org, "organization", "O", "", "Use `O` as the organization name")
-	fs.StringVarP(&ou, "organization-unit", "u", "", "Use `U` as the organization unit name")
-	fs.UintVarP(&yrs, "validity", "V", 5, "Issue CA root cert with `N` years validity")
+	fs.StringVarP(&ymlPath, "yaml-config", "c", "", "Path to YAML CA config file")
 	fs.StringVarP(&envpw, "env-password", "E", "", "Use password from environment var `E`")
 	fs.StringVarP(&from, "from-json", "j", "", "Initialize from an exported JSON dump")
 
@@ -69,14 +78,9 @@ func InitCmd(dbfile string, args []string) {
 		die("%s", err)
 	}
 
-	var cn string
 	var pw string
 
 	args = fs.Args()
-	if len(args) == 0 && len(from) == 0 {
-		fs.Usage()
-		os.Exit(1)
-	}
 
 	if len(envpw) > 0 {
 		pw = os.Getenv(envpw)
@@ -101,10 +105,23 @@ func InitCmd(dbfile string, args []string) {
 		if err != nil {
 			die("%s", err)
 		}
-	} else if len(args) > 0 {
-		var err error
+	} else if ymlPath != "" {
+                var ymlConfig = YmlConfig{}
 
-		cn = args[0]
+                ymlFile, err := ioutil.ReadFile(ymlPath)
+                if err != nil {
+                        log.Fatalf("ca.yml err:   #%v ", err)
+                }
+                err = yaml.Unmarshal(ymlFile, &ymlConfig)
+                if err != nil {
+                        log.Fatalf("error: %v", err)
+                }
+                cn = ymlConfig.CommonName
+                country = ymlConfig.Country
+                org = ymlConfig.Organization
+                ou = ymlConfig.OrganizationUnit
+                yrs = ymlConfig.Validity
+
 		p := pki.Config{
 			Passwd:   pw,
 			Validity: years(yrs),
@@ -121,9 +138,9 @@ func InitCmd(dbfile string, args []string) {
 			die("%s", err)
 		}
 	} else {
-		fs.Usage()
-		os.Exit(1)
-	}
+                fs.Usage()
+                os.Exit(1)
+        }
 
 	Print("New CA cert:\n%s\n", Cert(*ca.Certificate))
 }
@@ -134,7 +151,7 @@ func initUsage(fs *flag.FlagSet) {
 This command initializes the given CA database and creates
 a new root CA if needed.
 
-Usage: %s DB init [options] CN
+Usage: %s DB init [options]
 
 Where 'DB' is the CA Database file name and 'CN' is the CommonName for the CA.
 
