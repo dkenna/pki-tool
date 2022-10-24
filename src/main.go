@@ -39,6 +39,7 @@ Where 'DB' points to the certificate database, and 'CMD' is one of:
     init             Initialize a new CA and cert store
     intermediate-ca  Create a new intermediate CA
     server           Create a new server certificate
+    issuer           Create a new issuer certificate
     list, show       List one or all certificates in the DB
     export           Export a OpenVPN server or client configuration
     delete           Delete a user and revoke their certificate
@@ -83,6 +84,7 @@ Options:
 	var cmds = map[string]func(string, []string){
 		"init":            InitCmd,
 		"server":          ServerCert,
+		"issuer":          IssuerCert,
 		"user":            UserCert,
 		"delete":          Delete,
 		"client":          UserCert,

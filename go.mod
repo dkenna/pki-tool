@@ -1,4 +1,4 @@
-module github.com/opencoff/pki-tool
+module github.com/dkenna/pki-tool
 
 go 1.14
 

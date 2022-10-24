@@ -20,7 +20,7 @@ import (
 	"github.com/dkenna/pki-tool/internal/utils"
 	flag "github.com/opencoff/pflag"
   
-  "gopkg.in/yaml.v3"
+        "gopkg.in/yaml.v3"
 )
 
 // Open an existing CA or fail
